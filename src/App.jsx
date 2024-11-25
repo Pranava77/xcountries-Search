@@ -7,6 +7,7 @@ function App() {
   const [countries, setCountries] = useState([]);
   const [debouncedSearch, setDebouncedSearch] = useState('')
 
+  
   useEffect(() => {
     const fetchCountries = async () => {
       try {
@@ -15,7 +16,10 @@ function App() {
           throw new Error('Failed to fetch countries');
         }
         const data = await response.json();
-        setCountries(data);
+        const sortedData = data.sort((a, b) => 
+          a.name.common.localeCompare(b.name.common)
+        );
+        setCountries(sortedData);
       } catch (error) {
         console.error('Error fetching countries:', error);
       }
@@ -34,13 +38,12 @@ function App() {
   }, [search])
 
 
-  const filteredCountries = countries.filter((country) => {
-    return country.name.common.toLowerCase().includes(debouncedSearch.toLowerCase())
-  })
+  const filteredCountries = countries.filter((country) => 
+    country.name.common.toLowerCase().includes(debouncedSearch.toLowerCase()));
 
 
   return (
-    <div className="container">
+    <div className="container" data-testid="app-container">
       <input 
         type="text"
         value={search}
@@ -50,7 +53,7 @@ function App() {
         data-testid="search-input"
       />
 
-      <div className='grid'>
+      <div className='grid' data-testid="countries-grid">
         {filteredCountries.map((country) => (
           <div className="country-container" key={country.cca3} data-testid="country-container">
             <img 
