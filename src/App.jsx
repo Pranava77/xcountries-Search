@@ -5,10 +5,21 @@ import './App.css'
 function App() {
   const [search, setSearch] = useState('')
   const [countries, setCountries] = useState([]);
+  const [debouncedSearch, setDebouncedSearch] = useState('')
 
   useEffect(() => {
     fetchCountries();
   }, [])
+
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search)
+    }, 300)
+
+    return () => clearTimeout(timer)
+  }, [search])
+
 
   const fetchCountries = async () => {
     try{
@@ -22,7 +33,7 @@ function App() {
   };
 
   const filteredCountires = countries.filter((country) => {
-    return country.name.common.toLowerCase().includes(search.toLowerCase())
+    return country.name.common.toLowerCase().includes(debouncedSearch.toLowerCase())
   })
 
 
