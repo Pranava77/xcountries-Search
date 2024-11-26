@@ -1,59 +1,75 @@
-/** @format */
-import axios from "axios";
-import "./App.css";
 import { useEffect, useState } from "react";
-const App = () => {
-  const [search, setSearch] = useState("");
-  const [countries, setCountries] = useState([]);
+import axios from "axios";
+import CountriesSearch from "./Components/CountriesSearch";
+import "./App.css";
 
-  useEffect(() => {
-    fetchCountries();
-  }, []);
 
-  const fetchCountries = async () => {
+function App() {
+  const [countryData, setCountryData] = useState([]);
+  const [filterCountryData, setFilterCountryData] = useState([]);
+  const [searchText, setSearchText] = useState("");
+
+  const handleChange = (e) => {
+    setSearchText(e.target.value);
+  };
+
+  const fetchCountryData = async () => {
+    let url = "https://restcountries.com/v3.1/all";
     try {
-      const response = await axios.get("https://restcountries.com/v3.1/all");
-      if (response.status === 200 && response.data) {
-        setCountries(response.data);
-      } else {
-        throw new Error('Failed to fetch countries data');
-      }
+      let response = await axios.get(url);
+      setCountryData(response.data);
+      setFilterCountryData(response.data);
     } catch (error) {
-      console.error("Failed to fetch countries:", error.message);
-      setCountries([]); // Reset countries on error
+      console.log("Error: ", error);
     }
   };
 
-  const filteredCountries = countries.filter((country) =>
-    country.name.common.toLowerCase().includes(search.toLowerCase())
-  );
+  useEffect(() => {
+    fetchCountryData();
+  }, []);
+
+  const searchCountries = async () => {
+    if (searchText === "") {
+      setFilterCountryData(countryData);
+    }
+
+    let url = "https://restcountries.com/v3.1/all";
+
+    try {
+      let response = await axios.get(url);
+
+      const filteredData = response.data.filter((country) =>
+        country.name.common.toLowerCase().includes(searchText.toLowerCase())
+      );
+
+      setFilterCountryData(filteredData);
+    } catch (error) {
+      console.log("Error: ", error);
+    }
+  };
+
+  useEffect(() => {
+    searchCountries();
+  }, [searchText]);
 
   return (
     <div>
-      <input
-        type="text"
-        placeholder="Search for countries..."
-        value={search}
-        className="searchInput"
-        onChange={(e) => setSearch(e.target.value)}
-      ></input>
-
-      <div className="country-grid">
-        {filteredCountries.map((country) => {
-          return (
-            <div key={country.cca3} className="countryCard">
-              <img
-                src={country.flags.png}
-                alt={country.name.common}
-                className="flag"
-              />
-              <p className="countryName">{country.name.common}</p>
-            </div>
-          );
-        })}
+      <div className="searchSection">
+        <form>
+          <input
+            type="text"
+            placeholder="Search for countries..."
+            value={searchText}
+            onChange={(e) => handleChange(e)}
+          />
+        </form>
+      </div>
+      <div className="App">
+        {filterCountryData &&
+          filterCountryData.map((ele) => <CountriesSearch data={ele} />)}
       </div>
     </div>
   );
-};
+}
 
 export default App;
