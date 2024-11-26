@@ -13,9 +13,14 @@ const App = () => {
   const fetchCountries = async () => {
     try {
       const response = await axios.get("https://restcountries.com/v3.1/all");
-      setCountries(response.data);
+      if (response.status === 200 && response.data) {
+        setCountries(response.data);
+      } else {
+        throw new Error('Failed to fetch countries data');
+      }
     } catch (error) {
-      console.error("something is wrong", error);
+      console.error("Failed to fetch countries:", error.message);
+      setCountries([]); // Reset countries on error
     }
   };
 
