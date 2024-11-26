@@ -38,7 +38,7 @@ const App = () => {
         onChange={(e) => setSearch(e.target.value)}
       ></input>
 
-      <div className="countryGrid">
+      <div className="country-grid">
         {filteredCountries.map((country) => {
           return (
             <div key={country.cca3} className="countryCard">
