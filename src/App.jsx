@@ -1,73 +1,54 @@
-import { useEffect, useState } from 'react'
-import './App.css'
-
-
-function App() {
-  const [search, setSearch] = useState('')
+/** @format */
+import axios from "axios";
+import "./App.css";
+import { useEffect, useState } from "react";
+const App = () => {
+  const [search, setSearch] = useState("");
   const [countries, setCountries] = useState([]);
-  const [debouncedSearch, setDebouncedSearch] = useState('')
 
-  
   useEffect(() => {
-    const fetchCountries = async () => {
-      try {
-        const response = await fetch('https://restcountries.com/v3.1/all');
-        if (!response.ok) {
-          throw new Error('Failed to fetch countries');
-        }
-        const data = await response.json();
-        const sortedData = data.sort((a, b) => 
-          a.name.common.localeCompare(b.name.common)
-        );
-        setCountries(sortedData);
-      } catch (error) {
-        console.error('Error fetching countries:', error);
-      }
-    };
-
     fetchCountries();
   }, []);
 
+  const fetchCountries = async () => {
+    try {
+      const response = await axios.get("https://restcountries.com/v3.1/all");
+      setCountries(response.data);
+    } catch (error) {
+      console.error("something is wrong", error);
+    }
+  };
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search)
-    }, 300)
-
-    return () => clearTimeout(timer)
-  }, [search])
-
-
-  const filteredCountries = countries.filter((country) => 
-    country.name.common.toLowerCase().includes(debouncedSearch.toLowerCase()));
-
+  const filteredCountries = countries.filter((country) =>
+    country.name.common.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <div className="container" data-testid="app-container">
-      <input 
+    <div>
+      <input
         type="text"
+        placeholder="Search for countries..."
         value={search}
-        placeholder='Search for Countries'
-        className='searchInput'
+        className="searchInput"
         onChange={(e) => setSearch(e.target.value)}
-        data-testid="search-input"
-      />
+      ></input>
 
-      <div className='grid' data-testid="countries-grid">
-        {filteredCountries.map((country) => (
-          <div className="countryCard" key={country.cca3} data-testid="country-container">
-            <img 
-              className='countryFlag' 
-              src={country.flags.png} 
-              alt={`Flag of ${country.name.common}`}
-              data-testid="country-flag"
-            />
-            <p className="countryName" data-testid="country-name">{country.name.common}</p>
-          </div>
-        ))}
+      <div className="countryGrid">
+        {filteredCountries.map((country) => {
+          return (
+            <div key={country.cca3} className="countryCard">
+              <img
+                src={country.flags.png}
+                alt={country.name.common}
+                className="flag"
+              />
+              <p className="countryName">{country.name.common}</p>
+            </div>
+          );
+        })}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;
