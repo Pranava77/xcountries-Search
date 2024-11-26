@@ -55,7 +55,7 @@ function App() {
 
       <div className='grid' data-testid="countries-grid">
         {filteredCountries.map((country) => (
-          <div className="country-container" key={country.cca3} data-testid="country-container">
+          <div className="countryCard" key={country.cca3} data-testid="country-container">
             <img 
               className='countryFlag' 
               src={country.flags.png} 
