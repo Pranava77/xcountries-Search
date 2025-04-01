@@ -1,75 +1,71 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import axios from "axios";
-import CountriesSearch from "./Components/CountriesSearch";
 import "./App.css";
 
+const XCountriesSearch = () => {
+    const [data, setData] = useState([]);
+    const [searchText, setSearchText] = useState("");
+    const [filteredData, setFilteredData] = useState(null);
 
-function App() {
-  const [countryData, setCountryData] = useState([]);
-  const [filterCountryData, setFilterCountryData] = useState([]);
-  const [searchText, setSearchText] = useState("");
+    useEffect(()=>{
+        fetchCountries();
+    }, [])
 
-  const handleChange = (e) => {
-    setSearchText(e.target.value);
-  };
 
-  const fetchCountryData = async () => {
-    let url = "https://restcountries.com/v3.1/all";
-    try {
-      let response = await axios.get(url);
-      setCountryData(response.data);
-      setFilterCountryData(response.data);
-    } catch (error) {
-      console.log("Error: ", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchCountryData();
-  }, []);
-
-  const searchCountries = async () => {
-    if (searchText === "") {
-      setFilterCountryData(countryData);
+    const fetchCountries = async ()=>{
+        const url = "https://restcountries.com/v3.1/all"
+        try{
+            const res = await axios.get(url);
+            
+            if (res.status !== 200) {
+                throw new Error(`${res.status} ${res.statusText}`);
+            }
+            setData(res.data)
+        }catch(error){
+            console.error(error);
+        }
     }
 
-    let url = "https://restcountries.com/v3.1/all";
 
-    try {
-      let response = await axios.get(url);
+    const searchCountries = (str)=>{
+        
+        if(!str || !str.length) return setFilteredData(null);
 
-      const filteredData = response.data.filter((country) =>
-        country.name.common.toLowerCase().includes(searchText.toLowerCase())
-      );
-
-      setFilterCountryData(filteredData);
-    } catch (error) {
-      console.log("Error: ", error);
+        // const filteredCountries = ;
+        setFilteredData(data.filter((country) => country.name.common.toLowerCase().includes(str.toLowerCase())))
     }
-  };
+    const Card = (props) => {
+        const { image, name} = props;
+        return (
+            <div className='card container' style={{flexDirection: 'column'}}>
+                <img src={image} alt={`${name} flag`} />
+                <h2>{name}</h2>
+            </div>
+        );
+    };
 
-  useEffect(() => {
-    searchCountries();
-  }, [searchText]);
+    const displayFLags = ()=>{
+        // let arr = filteredData && filteredData?.length ? filteredData : data;
+        let arr = filteredData ? filteredData : data;
+        return arr?.map(cou=> <Card key={cou?.cca3} image={cou?.flags?.png} name={cou?.name?.common}/>);
 
-  return (
-    <div>
-      <div className="searchSection">
-        <form>
-          <input
-            type="text"
-            placeholder="Search for countries..."
-            value={searchText}
-            onChange={(e) => handleChange(e)}
-          />
-        </form>
-      </div>
-      <div className="App">
-        {filterCountryData &&
-          filterCountryData.map((ele) => <CountriesSearch data={ele} />)}
-      </div>
-    </div>
-  );
-}
+    }
 
-export default App;
+    const handleSearch = evt=>{
+        setSearchText(evt.target.value)
+        searchCountries(evt.target.value);
+    }
+
+    return (
+        data.length &&
+        <div className='XCountriesSearch'>
+            <input  type='text' value={searchText} onChange={handleSearch}/>
+            {/* <div className='countriesBody' style={{display: "flex", flexDirection: "column", alignItems: "center"}}> */}
+            <div className='countriesBody countriesWrapper'>
+                {displayFLags()}
+            </div>
+        </div>
+    );
+};
+
+export default XCountriesSearch;
