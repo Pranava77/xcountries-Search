@@ -14,10 +14,13 @@ function App() {
     const fetchData = async () => {
       try {
         const resp = await fetch("https://restcountries.com/v3.1/all");
+        if (!resp.ok) {
+          throw new Error("Failed to fetch data");
+        }
         const data = await resp.json();
         setCountries(data);
       } catch (err) {
-        console.error("Failed to fetch countries:", err);
+        console.error("Failed to fetch countries:", err); // This is to handle API failure and log to the console
       }
     };
     fetchData();
