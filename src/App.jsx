@@ -17,7 +17,7 @@ function App() {
         const data = await resp.json();
         setCountries(data);
       } catch (err) {
-        console.log(err);
+        console.error("Failed to fetch countries:", err);
       }
     };
     fetchData();
@@ -28,9 +28,8 @@ function App() {
       country.name.common.toLowerCase().includes(search.toLowerCase())
     );
     setFiltered(data);
-  }, [search]);
+  }, [search, countries]);
 
-  console.log(countries);
   return (
     <div>
       <div className="inp">
@@ -41,23 +40,23 @@ function App() {
         />
       </div>
       <div className="App">
-        {search === ""
-          ? countries.map((country) => {
-              return (
-                <div className="countryCard">
-                  <img src={country.flags.png} alt={country.flag}></img>
-                  <p>{country.name.common}</p>
-                </div>
-              );
-            })
-          : filtered.map((country) => {
-              return (
-                <div className="countryCard">
-                  <img src={country.flags.png} alt={country.flag}></img>
-                  <p>{country.name.common}</p>
-                </div>
-              );
-            })}
+        {search === "" ? (
+          countries.map((country) => (
+            <div className="countryCard" key={country.cca3}>
+              <img src={country.flags.png} alt={country.name.common} />
+              <p>{country.name.common}</p>
+            </div>
+          ))
+        ) : filtered.length > 0 ? (
+          filtered.map((country) => (
+            <div className="countryCard" key={country.cca3}>
+              <img src={country.flags.png} alt={country.name.common} />
+              <p>{country.name.common}</p>
+            </div>
+          ))
+        ) : (
+          <p>No results found</p>
+        )}
       </div>
     </div>
   );
